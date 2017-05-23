@@ -1,0 +1,469 @@
+<!doctype html>
+<html lang="ca">
+    <head>
+    <meta charset="UTF-8">
+    <title>Juego 18</title>
+    <link rel="stylesheet" href="css/estil.css" />
+    <script src = "snap.svg-min-0.4.1.js"></script>
+    <script>
+        
+       /* VARIABLES GLOBALES */
+        var misFichas = [],
+            posisLibres = [],
+            tablero = [],
+            fWidth = 55,
+            fHeight = 120;
+            pantallaW = window.innerWidth,
+            pantallaH = window.innerHeight,
+
+            posYtop = (8 * pantallaH) / 100,                    // Indica la posicion Y de las FICHAS CONTRARIAS (8% de la pantalla)
+            miposY = pantallaH - ((12 * pantallaH) / 100),      // Indica la posicion Y de MIS FICHAS
+            augPosX = (50 * fHeight) / 100,
+            augPosY = (70 * fHeight) / 100,
+            posX = (pantallaW / 2) - (fWidth * 3.7) - (5 * 3),  // Indica la posicion X de la PRIMERA FICHA de cada jugador
+            posY = (15 * pantallaH) / 100 ,                      // Indica la posicion Y de las fichas para ROBAR (15% de la pantalla);       
+            moveXFinal = Number(window.innerWidth / 2),
+            moveXFinal360 = 0,
+            moveXFinal180 = 0,
+            moveYFinal360 = 0,
+            moveYFinal180 = 0,
+            moveXPrincipio = Number(window.innerWidth / 2),
+            moveX = Number(window.innerWidth / 2),
+            moveYFinal = Number(window.innerHeight / 2),
+            moveYPrincipio = Number(window.innerHeight / 2),
+            moveY = Number(window.innerHeight / 2),
+            max = -1,
+            contJugadas = 0,
+            t = 1, 
+            entra_push = 0,
+            entra_unshift = 0,
+            moveXPrincipio360 = 0,
+            moveYPrincipio360 = 0,
+            moveXPrincipio180 = 0,
+            moveYPrincipio180 = 0,
+            ultima_FinalX = 0,
+            ultima_FinalY = 0,
+            ultima_PrincipioX = 0,
+            ultima_PrincipioY = 0,
+            Wi = 0,
+            He = 0;
+
+       
+        
+        window.onload = function(){
+            
+            var s = Snap();
+            s.attr({  viewBox: "0 0 " + window.innerWidth + " " + window.innerHeight, width: "100%", height: "100%" });
+            
+            var fichas = ["fichas/0_0.png", "fichas/0_1.png", "fichas/0_2.png", "fichas/0_3.png", "fichas/0_4.png", "fichas/0_5.png", "fichas/0_6.png", "fichas/1_1.png", "fichas/1_2.png", "fichas/1_3.png", "fichas/1_4.png", "fichas/1_5.png", "fichas/1_6.png", "fichas/2_2.png", "fichas/2_3.png", "fichas/2_4.png", "fichas/2_5.png", "fichas/2_6.png", "fichas/3_3.png", "fichas/3_4.png", "fichas/3_5.png", "fichas/3_6.png", "fichas/4_4.png", "fichas/4_5.png", "fichas/4_6.png", "fichas/5_5.png", "fichas/5_6.png", "fichas/6_6.png"];
+
+            s.dblclick(puntero);
+            function puntero(event){
+                var x = event.clientX;
+                var y = event.clientY;
+                //alert('X coords: '+x+', Y coords: '+y);
+            }
+                
+            function domino(){
+                dibujar_fichas();
+                sacar_dobleMasAlto();
+                //alert("ARRAY TABLERO: " + tablero.join());
+            }
+            
+            function dibujar_fichas(){
+                for(var i=0; i<14; i++){
+                    var lon = fichas.length-1;
+                    var alea = Math.floor(Math.random() * lon);
+                    
+                    if(i <= 6){
+                        // Fichas del contrario
+                        s.image("back.png", posX, posYtop, fHeight, fWidth).transform('r90').attr({viewBox: "0 0 " + fWidth + " " + fHeight, width: "5%", height: "5%" }); 
+                        
+                        // Fichas para robar del lado izquierdo
+                        s.image("back.png", -20, posY, fHeight, fWidth).transform('r90').attr({viewBox: "0 0 " + fWidth + " " + fHeight, width: "5%", height: "5%" }).click(posicionar); 
+                        
+                        // Fichas para robar del lado derecho
+                        s.image("back.png", pantallaW - fHeight, posY, fHeight, fWidth).transform('r90').attr({viewBox: "0 0 " + fWidth + " " + fHeight, width: "5%", height: "5%" }).click(posicionar); 
+                        
+                        // Mis fichas
+                        misFichas.push(s.image(fichas[alea], posX, miposY, fHeight, fWidth).transform('r90').attr({viewBox: "0 0 " + fWidth + " " + fHeight, width: "5%", height: "5%" }).click(comprovar)); 
+                        posX += augPosX;
+                        posY += augPosY;
+                    }
+                    
+                    fichas.splice(alea,1); // ELIMINAMOS DEL ARRAY MIS FICHAS Y LAS DEL CONTRARIO
+
+                }
+            }
+            
+            
+            function sacar_dobleMasAlto(){
+                //Poner id a las fichas Para saber la ficha doble mas alta y sacar
+                for(let v of misFichas){
+                    var nomID = v.attr('href').slice(7,10);
+                    v.attr({id: nomID});
+                    var res = nomID.split("_");
+                    if(res[0] == res[1]){
+                        if(res[0] > max){
+                            max = res[0];
+                            
+                        }
+                    }
+                }
+                
+                if(max == -1){
+                    //alert('No hay ficha doble');
+                    window.location.reload();
+                    //document.location.href = document.location.href;
+                }else{
+                    //alert('El doble mas alto es: ' + max + " : " + max);
+                    var str = max+"_"+max;
+                    for(let v of misFichas){
+                        var id = v.attr('id');
+                        if(id == str){
+                            var posLibre = v.attr('x');
+                            posisLibres.push(posLibre); 
+                            v.attr({x:moveX , y:moveY}).transform('r90');
+                            tablero.push(id);
+                            contJugadas++;
+                        }
+                    }
+                }
+            }
+            
+            
+            function comprovar(){
+                var opcion = 1;
+                var situacion = "";
+                var posLibre = this.attr('x');
+                var id = this.attr('id');
+                var lon = tablero.length - 1;
+                        
+                var resIni = tablero[0].split("_"); // cojo el primero del array
+                var primero1 = resIni[0];
+                var primero2 = resIni[1];
+                        
+                var resFi = tablero[lon].split("_"); // cojo el ultimo del array
+                var ultimo1 = resFi[0];
+                var ultimo2 = resFi[1];
+                        
+                var res = id.split("_"); // cojo el id de la ficha clicada
+                var arriba = res[0];
+                var abajo = res[1];
+                var este = this;
+                //alert("Muestra el valor de este: "+this);
+                //<image href="1_6.png" preserveAspectRatio="none" x="769" y="838.64" width="5%" height="5%" transform="matrix(0,1,-1,0,1695.14,37.14)" viewBox="0 0 55 120" id="1_6"/>
+                
+                var nuevoID = abajo+"_"+arriba;
+                
+                if(opcion == 1){
+                    if((arriba == primero1 && arriba == ultimo2) || (abajo == primero1 && abajo == ultimo2)){
+                        posisLibres.push(posLibre);
+                        situacion += "coincide con la doble primera";
+                        opcion++;
+                        arriba != ultimo2 ? añadir_Final(nuevoID, este) : añadir_Final(id, este);
+                       // this.attr({'opacity': 0 });
+                    }  
+                }
+                
+                if(opcion == 1){
+                    if((arriba == primero1 && abajo == ultimo2) || (arriba == ultimo2 && abajo == primero1)){
+                        posisLibres.push(posLibre);
+                        situacion += "coincide por los dos lados";
+                        opcion++;
+                        var colocacion = '';
+                        while(colocacion != 1 && colocacion != 2){
+                            colocacion = prompt('Si lo quieres a la derecha pulsa 1 \nSi lo quieres a la izquierda pulsa 2');
+                        }
+                        
+                        if(colocacion == 1){
+                            arriba != ultimo2 ? añadir_Final(nuevoID, este) : añadir_Final(id, este);
+                        }else{
+                            abajo != primero1 ? añadir_Principio(nuevoID, este) : añadir_Principio(id, este);
+                        }
+                       // this.attr({'opacity': 0 });
+                    }  
+                }
+                
+                
+                if(opcion == 1){
+                    if((arriba == primero1) || (abajo == primero1)){
+                        posisLibres.push(posLibre);
+                        situacion += "coincide por el principio";
+                        opcion++;
+                        abajo != primero1 ? añadir_Principio(nuevoID, este) : añadir_Principio(id, este);
+                        //this.attr({'opacity': 0 });
+                    }
+                }
+                
+                if(opcion == 1){
+                    if((arriba == ultimo2) || (abajo == ultimo2)){
+                        posisLibres.push(posLibre);
+                        situacion += "coincide por el final";
+                        opcion++;
+                        arriba != ultimo2 ? añadir_Final(nuevoID, este) : añadir_Final(id, este);
+                        //this.attr({'opacity': 0 });
+                    }
+                }
+                
+                //alert(situacion);
+                //alert("ARRAY TABLERO: " + tablero.join());
+            }
+            
+            function añadir_Principio(id, este){
+                
+                entra_unshift++;
+                Wi = Number((parseInt(este.attr('width')) * window.innerWidth) / 100);
+                He = Number((parseInt(este.attr('height')) * window.innerHeight) / 100);
+                //alert("Wi: " + Wi);
+                //alert("He: " + He);
+                tablero.unshift(id);
+                
+                var res = id.split("_"); // cojo el id de la ficha clicada
+                var arriba = res[0];
+                var abajo = res[1];
+                
+                moveYPrincipio360 = moveYPrincipio + (He / 2);
+                moveYPrincipio180 = moveYPrincipio + He + (He / 2);
+                
+                if(entra_unshift == 1){
+                    
+                    if(arriba < abajo){//coincide x abajo, NO HAY QUE ROTARLAS
+                        moveXPrincipio360 = moveXPrincipio - He - Wi;
+                        este.attr({x:moveXPrincipio360 , y:moveYPrincipio360}).transform('r360');
+                        
+                        //alert('moveX360: ' + moveXPrincipio360+ '  moveY360: '+ moveYPrincipio360);
+                        ultima_PrincipioX =  moveXPrincipio360;
+                        ultima_PrincipioY =  moveYPrincipio360;
+                        
+                    }else{// coincide por arriba, HAY QUE ROTARLAS
+                        moveXPrincipio180 = (moveXPrincipio - He);
+                        este.attr({x:moveXPrincipio180 , y:moveYPrincipio180}).transform('r180');
+                        
+                        //alert('moveX180: ' + moveXPrincipio180+ '  moveY180: '+ moveYPrincipio180);
+                        ultima_PrincipioX =  moveXPrincipio180;
+                        ultima_PrincipioY =  moveYPrincipio180;
+                    }
+                }else{
+                    var ahoraPY = ultima_PrincipioY;
+                    var ahoraPX = ultima_PrincipioX;
+                    
+                    if(arriba < abajo){//coincide x abajo, NO HAY QUE ROTARLAS
+                        
+                        
+                        if(ultima_PrincipioY == moveYPrincipio180){
+                            ahoraPX -= (Wi * 2);
+                            ultima_PrincipioX = ahoraPX;
+                            ultima_PrincipioY = moveYPrincipio360;
+                            
+                        }else if(ultima_PrincipioY == moveYPrincipio360){
+                            ahoraPX -= Wi;
+                            ultima_PrincipioX = ahoraPX;
+                            ultima_PrincipioY = moveYPrincipio360;
+                        }else if(ultima_PrincipioY == moveY){
+                            ahoraPX -= (Wi + He);
+                            ultima_PrincipioX = ahoraPX;
+                            ultima_PrincipioY = moveYPrincipio360;
+                        }
+                        
+                        este.attr({x:ultima_PrincipioX , y:ultima_PrincipioY}).transform('r360');
+                        //alert('moveX360: ' + ultima_PrincipioX+ '  moveY360: '+ ultima_PrincipioY);
+                        
+                        
+                    }else if(arriba > abajo){// coincide por arriba, HAY QUE ROTARLAS
+                        
+                        if(ultima_PrincipioY == moveYPrincipio180){
+                             ahoraPX -= Wi;
+                             ultima_PrincipioX = ahoraPX;
+                             ultima_PrincipioY = moveYPrincipio180;
+                            
+                        }else if(ultima_PrincipioY == moveYPrincipio360){
+                             ahoraPX = ultima_PrincipioX;
+                             ultima_PrincipioX = ahoraPX;
+                             ultima_PrincipioY = moveYPrincipio180;
+                        }else if(ultima_PrincipioY == moveY){
+                            ahoraPX -= He;
+                            ultima_PrincipioX = ahoraPX;
+                            ultima_PrincipioY = moveYPrincipio180;
+                        }
+                        
+                        este.attr({x:ultima_PrincipioX , y:ultima_PrincipioY}).transform('r180');
+                        //alert('moveX180: ' + ultima_PrincipioX+ '  moveY180: '+ ultima_PrincipioY);
+                        
+                    }else if(arriba == abajo){
+                        if(ultima_PrincipioY == moveYPrincipio360){
+                            ahoraPX = ultima_PrincipioX;
+                            ultima_PrincipioX = ahoraPX;
+                            ultima_PrincipioY = moveY;
+                        }else if(ultima_PrincipioY == moveYPrincipio180){
+                            ahoraPX -= Wi;
+                            ultima_PrincipioX = ahoraPX;
+                            ultima_PrincipioY = moveY;
+                        }
+                        este.attr({x:ultima_PrincipioX , y:ultima_PrincipioY}).transform('r90');
+                    }
+                }
+                    
+                    
+                
+            }
+            
+            
+            function añadir_Final(id, este){
+                
+                entra_push++;
+                Wi = Number((parseInt(este.attr('width')) * window.innerWidth) / 100);
+                He = Number((parseInt(este.attr('height')) * window.innerHeight) / 100);
+                //alert("Wi: " + Wi);
+                //alert("He: " + He);
+                tablero.push(id);
+                
+                var res = id.split("_"); // cojo el id de la ficha clicada
+                var arriba = res[0];
+                var abajo = res[1];
+                
+                moveYFinal360 = moveYFinal + (He / 2);
+                moveYFinal180 = moveYFinal + He + (He / 2);
+                
+                if(entra_push == 1){
+                    if(arriba < abajo){ // si no le tengo k dar la vuelta
+                            
+                            moveXFinal360 = moveXFinal;
+                            este.attr({x:moveXFinal360 , y:moveYFinal360}).transform('r360');
+                        
+                            //alert('moveXFinal360: ' + moveXFinal360 + 'moveYFinal360: '+ moveYFinal360);
+                            ultima_FinalX = moveXFinal360;
+                            ultima_FinalY = moveYFinal360;
+                        
+                    }else{ // si le doy la vuelta
+                            
+                            moveXFinal180 = moveXFinal + Wi; 
+                            este.attr({x:moveXFinal180 , y:moveYFinal180}).transform('r180');
+                        
+                            //alert('moveXFinal180: ' + moveXFinal180 + 'moveYFinal180: '+ moveYFinal180);
+                            ultima_FinalX = moveXFinal180;
+                            ultima_FinalY = moveYFinal180;
+                        
+                    }
+               
+                    
+                }else{
+                    
+                    var ahoraFY = ultima_FinalY;
+                    var ahoraFX = ultima_FinalX;
+                    
+                    if(arriba < abajo){ // si no le tengo k dar la vuelta
+
+                            if(ultima_FinalY == moveYFinal360){
+                                ahoraFX += Wi;
+                                ultima_FinalX = ahoraFX;
+                                ultima_FinalY = moveYFinal360;
+                            }else if(ultima_FinalY == moveYFinal180){ 
+                                ahoraFX = ultima_FinalX;
+                                ultima_FinalX = ahoraFX;
+                                ultima_FinalY = moveYFinal360;
+                            }else if(ultima_FinalY == moveY){
+                                ahoraFX = ultima_FinalX;
+                                ultima_FinalX = ahoraFX;
+                                ultima_FinalY = moveYFinal360;
+                            }
+
+                            este.attr({x:ultima_FinalX , y:ultima_FinalY}).transform('r360');
+                            //alert('moveXFinal: ' + ultima_FinalX + 'moveYFinal: '+ ultima_FinalY);
+                        
+                    }else if(arriba > abajo){              // si le doy la vuelta
+                            if(ultima_FinalY == moveYFinal360){
+                                ahoraFX += (Wi *2);
+                                ultima_FinalX = ahoraFX;
+                                ultima_FinalY = moveYFinal180;
+                            }else if(ultima_FinalY == moveYFinal180){ 
+                                ahoraFX += Wi;
+                                ultima_FinalX = ahoraFX;
+                                ultima_FinalY = moveYFinal180;
+                            }else if(ultima_FinalY == moveY){
+                                ahoraFX += Wi;
+                                ultima_FinalX = ahoraFX;
+                                ultima_FinalY = moveYFinal180;
+                            }
+                            
+                            este.attr({x:ultima_FinalX , y:ultima_FinalY}).transform('r180');
+                            //alert('moveXFinal: ' + ultima_FinalX + 'moveYFinal: '+ ultima_FinalY);
+                        
+                    }else if(arriba == abajo){
+                            if(ultima_FinalY == moveYFinal360){
+                                ahoraFX += (Wi + He);
+                                ultima_FinalX = ahoraFX;
+                                ultima_FinalY = moveY;
+                            }else if(ultima_FinalY == moveYFinal180){
+                                ahoraFX += He;
+                                ultima_FinalX = ahoraFX;
+                                ultima_FinalY = moveY;
+                            }
+                            este.attr({x:ultima_FinalX , y:ultima_FinalY}).transform('r90');
+                    }
+               
+                    
+                    
+                }
+                     
+                
+            }
+            
+            // Al robar, mostrar las fichas en su sitio, llenando los huecos vacios si es que hay
+                var cont = 0;
+                var posIni = (pantallaW / 2) - (fWidth * 3.7) - (5 * 3) - fWidth; // indica la posicion x de la primera ficha
+                var posFinal = posX + (He * 7) + (augPosX * 7); // indica la posicion x final de la ultima ficha
+
+                function posicionar(){
+
+                    var lon = fichas.length-1;
+                    var alea = Math.floor(Math.random() * lon);
+                    this.attr({'opacity': 0 });
+
+                    var nomID = fichas[alea].slice(7,10);
+                    
+                    if(cont % 2 == 0){
+                        //alert(posIni);
+                        if(posisLibres.length > 0){
+                            //var res = posisLibres[0].split("_");
+                            misFichas.push(s.image(fichas[alea], posisLibres[0], miposY, fHeight, fWidth).transform('r90').attr({viewBox: "0 0 " + fWidth + " " + fHeight, width: "5%", height: "5%", id: nomID }).click(comprovar));
+                            posisLibres.shift();
+                        }else{
+                            misFichas.push(s.image(fichas[alea], posIni, miposY, fHeight, fWidth).transform('r90').attr({viewBox: "0 0 " + fWidth + " " + fHeight, width: "5%", height: "5%", id: nomID }).click(comprovar)); // Mis fichas robadas
+                            posIni -= augPosX;
+                        }
+                        cont++;
+                        
+                    }else{
+                        //alert(posFinal);
+                        if(posisLibres.length > 0){
+                            //var res = posisLibres[0].split("_");
+                            misFichas.push(s.image(fichas[alea], posisLibres[0], miposY, fHeight, fWidth).transform('r90').attr({viewBox: "0 0 " + fWidth + " " + fHeight, width: "5%", height: "5%", id: nomID  }).click(comprovar));
+                            posisLibres.shift();
+                            
+                        }else{
+                            misFichas.push(s.image(fichas[alea], posFinal, miposY, fHeight, fWidth).transform('r90').attr({viewBox: "0 0 " + fWidth + " " + fHeight, width: "5%", height: "5%", id: nomID  }).click(comprovar)); // Mis fichas robadas
+                            posFinal += augPosX;
+                        }
+                        cont++;
+                    }
+
+                    fichas.splice(alea,1); //Eliminamos del array las fichas robadas
+                    //alert(fichas.length);
+
+                }
+          
+        
+            //BIEN2!!!!! LAS DE ROBAR TMB FUNCIONAN!!!
+            
+            
+            domino();
+
+            
+        }
+    </script>
+    </head>
+    <body>
+        
+    </body>
+</html

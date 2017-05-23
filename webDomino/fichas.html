@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="ca">
+    <head>
+    <meta charset="UTF-8">
+    <style>
+        svg {background-color: black}
+    </style>
+    <title>Fichas</title>
+    <!--<script src = "http://snapsvg.io/assets/js/snap.svg-min.js"></script>-->
+    <script src = "snap.svg-min-0.4.1.js"></script>
+        
+    <script>
+        window.onload = function(){
+            var ancho =700,
+                alto = 920;
+            var s = Snap(ancho, alto);
+            
+            var f1 = s.image("0_0.png", -30, 50, 120, 55);
+            f1.transform('r90');
+            var f2 = s.image("0_1.png", 40, 50, 120, 55);
+            f2.transform('r90');
+            var f3 = s.image("0_2.png", 110, 50, 120, 55);
+            f3.transform('r90');
+            var f4 = s.image("0_3.png", 180, 50, 120, 55);
+            f4.transform('r90');
+            var f5 = s.image("0_4.png", 250, 50, 120, 55);
+            f5.transform('r90');
+            var f6 = s.image("0_5.png", 320, 50, 120, 55);
+            f6.transform('r90');
+            var f7 = s.image("0_6.png", 390, 50, 120, 55);
+            f7.transform('r90');
+            var f8 = s.image("1_1.png", 40, 180, 120, 55);
+            f8.transform('r90');
+            var f9 = s.image("1_2.png", 110, 180, 120, 55);
+            f9.transform('r90');
+            var f10 = s.image("1_3.png", 180, 180, 120, 55);
+            f10.transform('r90');
+            var f11 = s.image("1_4.png", 250, 180, 120, 55);
+            f11.transform('r90');
+            var f12 = s.image("1_5.png", 320, 180, 120, 55);
+            f12.transform('r90');
+            var f13 = s.image("1_6.png", 390, 180, 120, 55);
+            f13.transform('r90');
+            var f14 = s.image("2_2.png", 110, 310, 120, 55);
+            f14.transform('r90');
+            var f15 = s.image("2_3.png", 180, 310, 120, 55);
+            f15.transform('r90');
+            var f16 = s.image("2_4.png", 250, 310, 120, 55);
+            f16.transform('r90');
+            var f17 = s.image("2_5.png", 320, 310, 120, 55);
+            f17.transform('r90');
+            var f18 = s.image("2_6.png", 390, 310, 120, 55);
+            f18.transform('r90');
+            var f19 = s.image("3_3.png", 180, 440, 120, 55);
+            f19.transform('r90');
+            var f20 = s.image("3_4.png", 250, 440, 120, 55);
+            f20.transform('r90');
+            var f21 = s.image("3_5.png", 320, 440, 120, 55);
+            f21.transform('r90');
+            var f22 = s.image("3_6.png", 390, 440, 120, 55);
+            f22.transform('r90');
+            var f23 = s.image("4_4.png", 250, 570, 120, 55);
+            f23.transform('r90');
+            var f24 = s.image("4_5.png", 320, 570, 120, 55);
+            f24.transform('r90');
+            var f25 = s.image("4_6.png", 390, 570, 120, 55);
+            f25.transform('r90');
+            var f26 = s.image("5_5.png", 320, 700, 120, 55);
+            f26.transform('r90');
+            var f27 = s.image("5_6.png", 390, 700, 120, 55);
+            f27.transform('r90');
+            var f28 = s.image("6_6.png", 390, 830, 120, 55);
+            f28.transform('r90');
+            
+            var move = function(dx,dy) {
+        this.attr({
+                    transform: this.data('origTransform') + (this.data('origTransform') ? "T" : "t") + [dx, dy]
+                });
+}
+
+var start = function() {
+        this.data('origTransform', this.transform().local );
+}
+
+f1.drag(move, start);
+f2.drag(move, start);
+f3.drag(move, start);
+f4.drag(move, start);
+f5.drag(move, start);
+f6.drag(move, start);
+f7.drag(move, start);
+f8.drag(move, start);
+f9.drag(move, start);
+f10.drag(move, start);
+f11.drag(move, start);
+f12.drag(move, start);
+f13.drag(move, start);
+f14.drag(move, start);
+f15.drag(move, start);
+f16.drag(move, start);
+f17.drag(move, start);
+f18.drag(move, start);
+f19.drag(move, start);
+f20.drag(move, start);
+f21.drag(move, start);
+f22.drag(move, start);
+f23.drag(move, start);
+f24.drag(move, start);
+f25.drag(move, start);
+f26.drag(move, start);
+f27.drag(move, start);
+f28.drag(move, start);
+        };
+    </script>
+    </head>
+    <body>
+    </body>
+</html
